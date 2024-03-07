@@ -6,16 +6,20 @@
 class BPTree {
 	BPTreeNode* root;
 	int MAX;
-	void insertInternal(int, BPTreeNode *, BPTreeNode *);
-	BPTreeNode* findParent(BPTreeNode *, BPTreeNode *);
+	void insertInternal(int x, BPTreeNode* cursor, BPTreeNode* child);
+	BPTreeNode* findParent(BPTreeNode* cursor, BPTreeNode* child);
+	void handleUnderflow(BPTreeNode* cursor, BPTreeNode* parent);
+	void redistribute(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* parent, int parentIndex, bool isLeftSibling);
+	void mergeNodes(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* parent, int mergeIndex);
 
 public:
 	BPTree(int MAX);
 	void search(int);
 	void insert(std::tuple<int, RecordAddress> recordMetaData);
-	void remove(BPTreeNode* root, int key);
+	void deleteKey(int x);
+	BPTreeNode* findKey(BPTreeNode* cursor, int key);
+	void deleteAllWithKeyValue(int key);
 	void display(BPTreeNode *);
 	BPTreeNode* getRoot();
-	std::tuple<int, BPTreeNode*> findNodeWithKey(int key);
-	BPTreeNode* findValidSibling(BPTreeNode* node);
+
 };

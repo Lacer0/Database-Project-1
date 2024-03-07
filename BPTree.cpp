@@ -55,6 +55,43 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 		BPTreeNode* cursor = root;
 		BPTreeNode* parent = nullptr;
 
+		// Edge case
+		// Check if there are duplicates
+		if (findKey(root, x) != nullptr) {
+			BPTreeNode* tmp = findKey(root, x);
+			// Grab index
+			int index = 0;
+			for (index; index < MAX; index++) {
+				if (tmp->key[index] == x) {
+					break;
+				}
+			}
+			// Chain BPTreeNodes
+			// First time
+			BPTreeNode* node = tmp->ptr[index];
+			if (node == nullptr) {
+				node = new BPTreeNode(MAX);
+				node->key[0] = x;
+				node->adrs[0] = r;
+				node->size = 1;
+			}
+			// If not first time
+			else {
+				// Step through get non-filled node
+				while(node->size == MAX) {
+					node = node->ptr[0];
+				}
+				node->key[node->size] = x;
+				node->adrs[node->size] = r;
+				node->size++;
+				if(node->size == MAX) {
+					node->ptr[0] = new BPTreeNode(MAX);
+					node->ptr[0]->size = 0;
+				}
+			}
+			return;
+		}
+
 		// Get leaf node
 		while (!cursor->IS_LEAF) {
 			parent = cursor;
@@ -91,10 +128,12 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 		else {
 			BPTreeNode* newLeaf = new BPTreeNode(MAX);
 			int* virtualNode = new int[MAX + 1];
+			BPTreeNode** virtualPtr = new BPTreeNode*[MAX + 1];
 			RecordAddress* tempAddresses = new RecordAddress[MAX + 1];
 			for (int i = 0; i < MAX; i++) {
 				virtualNode[i] = cursor->key[i];
 				tempAddresses[i] = cursor->adrs[i];
+				virtualPtr[i] = cursor->ptr[i];
 			}
 			int i = 0, j;
 			while (x > virtualNode[i] && i < MAX) {
@@ -103,6 +142,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			for (int j = MAX; j > i; j--) {
 				virtualNode[j] = virtualNode[j - 1];
 				tempAddresses[j] = tempAddresses[j - 1];
+				virtualPtr[j] = virtualPtr[j - 1];
 			}
 			virtualNode[i] = x;
 			tempAddresses[i] = r;
@@ -115,10 +155,12 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			for (i = 0; i < cursor->size; i++) {
 				cursor->key[i] = virtualNode[i];
 				cursor->adrs[i] = tempAddresses[i];
+				cursor->ptr[i] = virtualPtr[i];
 			}
 			for (i = 0, j = cursor->size; i < newLeaf->size; i++, j++) {
 				newLeaf->key[i] = virtualNode[j];
 				newLeaf->adrs[i] = tempAddresses[j];
+				newLeaf->ptr[i] = virtualPtr[j];
 			}
 			if (cursor == root) {
 				BPTreeNode* newRoot = new BPTreeNode(MAX);
@@ -178,8 +220,8 @@ void BPTree::insertInternal(int x, BPTreeNode* cursor, BPTreeNode* child) {
 		}
 		virtualPtr[i + 1] = child;
 		newInternal->IS_LEAF = false;
-		cursor->size = (MAX + 1) / 2;
-		newInternal->size = MAX - (MAX + 1) / 2;
+		cursor->size = ceil((MAX + 1) / 2);
+		newInternal->size = floor((MAX + 1) / 2);
 		for (i = 0, j = cursor->size + 1; i < newInternal->size; i++, j++) {
 			newInternal->key[i] = virtualKey[j];
 		}
@@ -240,11 +282,9 @@ BPTreeNode* BPTree::findKey(BPTreeNode* cursor, int key) {
 		}
 		for (int i = 0; i < cursor->size; i++) {
 			if (cursor->key[i] == key) {
-				std::cout << "Found key " << key << std::endl;
 				return cursor;
 			}
 		}
-		std::cout << "Key not found" << std::endl;
 	}
 	return nullptr;
 }
@@ -298,7 +338,7 @@ void BPTree::deleteKey(int x) {
 	cursor->size--;
 
 	// Steps 3 and 4, check for underflow and handle it:
-	if (cursor->size < ceil((MAX / 2) - 1)) {
+	if (cursor->size < floor((MAX + 1) / 2)) {
 		handleUnderflow(cursor, parent);
 	}
 }
@@ -324,13 +364,13 @@ void BPTree::handleUnderflow(BPTreeNode* cursor, BPTreeNode* parent) {
 	}
 
 	// Try redistributing first
-	if (leftSibling != nullptr && leftSibling->size > ceil((MAX / 2) - 1)) {
+	if (leftSibling != nullptr && leftSibling->size > floor((MAX + 1) / 2)) {
 		// Redistribute with left sibling
-		redistribute(cursor, leftSibling, parent, siblingIndex - 1, true);
+		redistribute(cursor, leftSibling, parent, siblingIndex, true);
 	}
-	else if (rightSibling != nullptr && rightSibling->size > ceil((MAX / 2) - 1)) {
+	else if (rightSibling != nullptr && rightSibling->size > floor((MAX + 1) / 2)) {
 		// Redistribute with right sibling
-		redistribute(cursor, rightSibling, parent, siblingIndex, false);
+		redistribute(cursor, rightSibling, parent, siblingIndex + 1, false);
 	}
 	else {
 		// Merge with sibling
@@ -353,6 +393,8 @@ void BPTree::redistribute(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* p
 		}
 		cursor->key[0] = sibling->key[sibling->size - 1];
 		cursor->adrs[0] = sibling->adrs[sibling->size - 1];
+		cursor->size++;
+
 		sibling->size--;
 
 		// Update parent key
@@ -397,7 +439,7 @@ void BPTree::mergeNodes(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* par
 		delete cursor;
 
 		// Check underflow in parent
-		if (parent != root && parent->size < ceil((MAX / 2) - 1)) {
+		if (parent != root && parent->size < floor((MAX + 1) / 2)) {
 			BPTreeNode* grandParent = findParent(root, parent);
 			handleUnderflow(parent, grandParent);
 		}
@@ -414,11 +456,25 @@ void BPTree::display(BPTreeNode* cursor) {
 		}
 		else {
 			std::cout << "Leaf Node: ";
-
 		}
 		for (int i = 0; i < cursor->size; i++) {
 			std::cout << cursor->key[i] << " ";
+
+			// print duplicates
+			if (cursor->IS_LEAF && cursor->ptr[i] != nullptr) {
+				int countDups = 0;
+				BPTreeNode* tmp = cursor->ptr[i];
+				while (tmp != nullptr) {
+					countDups += tmp->size;
+					for (int i = 0; i < tmp->size; i++) {
+						std::cout << tmp->key[i] << " ";
+					}
+					tmp = tmp->ptr[0];
+				}
+				std::cout << "(" << countDups << ")";
+			}
 			//std::cout << cursor->adrs[i].blockAddress << " ";
+
 		}
 		std::cout << "\n";
 		if (cursor->IS_LEAF != true) {

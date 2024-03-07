@@ -75,7 +75,7 @@ int main()
         dataset.pop();
     }
 
-    tree.deleteAllWithKeyValue(16);
+    //tree.deleteAllWithKeyValue(16);
     tree.display(tree.getRoot());
 
 }

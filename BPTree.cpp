@@ -42,10 +42,12 @@ void BPTree::search(int x) {
 void BPTree::insert(std::tuple<int, RecordAddress> record) {
 
 	int x = std::get<0>(record);
+	RecordAddress r = std::get<1>(record);
 
 	if (root == nullptr) {
 		root = new BPTreeNode(MAX);
 		root->key[0] = x;
+		root->adrs[0] = r;
 		root->IS_LEAF = true;
 		root->size = 1;
 	}
@@ -77,8 +79,10 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 
 			for (int j = cursor->size; j > i; j--) {
 				cursor->key[j] = cursor->key[j - 1];
+				cursor->adrs[j] = cursor->adrs[j - 1];
 			}
 			cursor->key[i] = x;
+			cursor->adrs[i] = r;
 			cursor->size++;
 			cursor->ptr[cursor->size] = cursor->ptr[cursor->size - 1];
 			cursor->ptr[cursor->size - 1] = nullptr;
@@ -87,8 +91,10 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 		else {
 			BPTreeNode* newLeaf = new BPTreeNode(MAX);
 			int* virtualNode = new int[MAX + 1];
+			RecordAddress* tempAddresses = new RecordAddress[MAX + 1];
 			for (int i = 0; i < MAX; i++) {
 				virtualNode[i] = cursor->key[i];
+				tempAddresses[i] = cursor->adrs[i];
 			}
 			int i = 0, j;
 			while (x > virtualNode[i] && i < MAX) {
@@ -96,8 +102,10 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			}
 			for (int j = MAX; j > i; j--) {
 				virtualNode[j] = virtualNode[j - 1];
+				tempAddresses[j] = tempAddresses[j - 1];
 			}
 			virtualNode[i] = x;
+			tempAddresses[i] = r;
 			newLeaf->IS_LEAF = true;
 			cursor->size = ceil((MAX + 1) / 2);
 			newLeaf->size = floor((MAX + 1) / 2);
@@ -106,13 +114,16 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			cursor->ptr[MAX] = nullptr;
 			for (i = 0; i < cursor->size; i++) {
 				cursor->key[i] = virtualNode[i];
+				cursor->adrs[i] = tempAddresses[i];
 			}
 			for (i = 0, j = cursor->size; i < newLeaf->size; i++, j++) {
 				newLeaf->key[i] = virtualNode[j];
+				newLeaf->adrs[i] = tempAddresses[j];
 			}
 			if (cursor == root) {
 				BPTreeNode* newRoot = new BPTreeNode(MAX);
 				newRoot->key[0] = newLeaf->key[0];
+				newRoot->adrs[0] = newLeaf->adrs[0];
 				newRoot->ptr[0] = cursor;
 				newRoot->ptr[1] = newLeaf;
 				newRoot->IS_LEAF = false;
@@ -123,6 +134,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 				insertInternal(newLeaf->key[0], parent, newLeaf);
 			}
 			delete[] virtualNode;
+			delete[] tempAddresses;
 		}
 	}
 }

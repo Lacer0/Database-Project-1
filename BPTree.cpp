@@ -211,8 +211,148 @@ BPTreeNode* BPTree::findParent(BPTreeNode* cursor, BPTreeNode* child) {
 	return parent;
 }
 
+void BPTree::deleteKey(int x) {
+	if (root == nullptr) {
+		std::cout << "Tree is empty\n";
+		return;
+	}
+
+	// Step 1: Find leaf node containing key
+	BPTreeNode* cursor = root;
+	BPTreeNode* parent = nullptr;
+	while (!cursor->IS_LEAF) {
+		parent = cursor;
+		int i = 0;
+		while (i < cursor->size && x >= cursor->key[i]) {
+			i++;
+		}
+		cursor = cursor->ptr[i];
+	}
+
+	// Step 2: Delete the key from the leaf node
+	bool found = false;
+	int i;
+	for (i = 0; i < cursor->size; i++) {
+		if (cursor->key[i] == x) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		std::cout << "Key not found\n";
+		return;
+	}
+
+	for (; i < cursor->size - 1; i++) {
+		cursor->key[i] = cursor->key[i + 1];
+	}
+	cursor->size--;
+
+	// Steps 3 and 4, check for underflow and handle it:
+	if (cursor->size < ceil((MAX / 2) - 1)) {
+		handleUnderflow(cursor, parent);
+	}
+}
+
+void BPTree::handleUnderflow(BPTreeNode* cursor, BPTreeNode* parent) {
+	// Find sibling
+	int siblingIndex = 0;
+	for (; siblingIndex <= parent->size; siblingIndex++) {
+		if (parent->ptr[siblingIndex] == cursor) {
+			break;
+		}
+	}
+
+	BPTreeNode* leftSibling = nullptr;
+	BPTreeNode* rightSibling = nullptr;
+
+	if (siblingIndex > 0) {
+		leftSibling = parent->ptr[siblingIndex - 1];
+	}
+
+	if (siblingIndex < parent->size) {
+		rightSibling = parent->ptr[siblingIndex + 1];
+	}
+
+	// Try redistributing first
+	if (leftSibling != nullptr && leftSibling->size > ceil((MAX / 2) - 1)) {
+		// Redistribute with left sibling
+		redistribute(cursor, leftSibling, parent, siblingIndex - 1, true);
+	}
+	else if (rightSibling != nullptr && rightSibling->size > ceil((MAX / 2) - 1)) {
+		// Redistribute with right sibling
+		redistribute(cursor, rightSibling, parent, siblingIndex, false);
+	}
+	else {
+		// Merge with sibling
+		if (leftSibling != nullptr) {
+			mergeNodes(cursor, leftSibling, parent, siblingIndex);
+		}
+		else if (rightSibling != nullptr) {
+			mergeNodes(cursor, rightSibling, parent, siblingIndex + 1);
+		}
+	}
+}
+
+void BPTree::redistribute(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* parent, int parentIndex, bool isLeftSibling) {
+	if (isLeftSibling) {
+		// Move a key from the left sibling to underflow node
+
+		for (int i = cursor->size; i > 0; i--) {
+			cursor->key[i] = cursor->key[i - 1];
+		}
+		cursor->key[0] = sibling->key[sibling->size - 1];
+		sibling->size--;
+
+		// Update parent key
+		parent->key[parentIndex] = cursor->key[0];
+	}
+	else {
+		// Move one key from the right sibling to the underflow node
+		cursor->key[cursor->size] = sibling->key[0];
+		cursor->size++;
+		for (int i = 0; i < sibling->size - 1; i++) {
+			sibling->key[i] = sibling->key[i + 1];
+		}
+		sibling->size--;
+
+		// Update parent key
+		parent->key[parentIndex] = sibling->key[0];
+	}
+}
+
+void BPTree::mergeNodes(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* parent, int mergeIndex) {
+	if (cursor->size + sibling->size < MAX) {
+		// Merge cursor into sibling
+		for (int i = 0; i < cursor->size; i++) {
+			sibling->key[sibling->size + i] = cursor->key[i];
+		}
+		sibling->size += cursor->size;
+		sibling->ptr[sibling->size] = cursor->ptr[cursor->size];
+
+		// Remove cursor's entry from parent
+		for (int i = mergeIndex; i < parent->size - 1; i++) {
+			parent->key[i] = parent->key[i + 1];
+			parent->ptr[i] = parent->ptr[i + 1];
+		}
+		parent->size--;
+
+		// Delete cursor
+		delete[] cursor->key;
+		delete[] cursor->ptr;
+		delete cursor;
+
+		// Check underflow in parent
+		if (parent != root && parent->size < ceil((MAX / 2) - 1)) {
+			BPTreeNode* grandParent = findParent(root, parent);
+			handleUnderflow(parent, grandParent);
+		}
+	}
+}
+
 void BPTree::display(BPTreeNode* cursor) {
-	if (cursor != NULL) {
+	if (cursor != nullptr) {
 		if (cursor == root) {
 			std::cout << "Root Node: ";
 		}
@@ -240,102 +380,4 @@ BPTreeNode* BPTree::getRoot() {
 	return root;
 }
 
-std::tuple<int, BPTreeNode*> BPTree::findNodeWithKey(int key) {
-	if (root == nullptr) {
-		root = new BPTreeNode(MAX);
-		root->key[0] = key;
-		root->IS_LEAF = true;
-		root->size = 1;
-	}
-	else {
-		BPTreeNode* cursor = root;
-		while (cursor->IS_LEAF == false) {
-			for (int i = 0; i < cursor->size; i++) {
-				if (key < cursor->key[i]) {
-					cursor = cursor->ptr[i];
-					break;
-				}
 
-				if (i == cursor->size - 1) {
-					cursor = cursor->ptr[i + 1];
-					break;
-				}
-			}
-		}
-		int i;
-		for (i = 0; i < cursor->size; i++) {
-			if (cursor->key[i] == key) {
-				std::cout << "Found key " << key << "!\n";
-				return std::make_tuple(i, cursor);
-			}
-		}
-		std::cout << "Key not found\n";
-	}
-	return std::make_tuple(-1, nullptr);
-}
-
-void BPTree::remove(BPTreeNode* root, int key) {
-	auto result = findNodeWithKey(key);
-	int position = std::get<0>(result);
-	BPTreeNode* target = std::get<1>(result);
-
-	while (position != -1 || target != nullptr) {
-		// Case 1
-		// Safe to just delete
-		if (target->size - 1 > floor((MAX + 1) / 2)) {
-			bool updateParent = false;
-			int newParentKey;
-			if (position == 0) {
-				if (target->key[position] == target->key[position + 1]) {
-					updateParent = false;
-				}
-				else {
-					updateParent = true;
-					newParentKey = target->key[position + 1];
-				}
-			}
-
-			for (int i = position; i < MAX - 2; i++) {
-				target->key[i] = target->key[i + 1];
-				target->ptr[i] = target->ptr[i + 1];
-			}
-
-			// Reduce node key size
-			target->size = target->size-1;
-
-			// Just change parent's key to next value
-			if (updateParent) {
-				auto parent = findParent(root, target);
-				for (int p = 0; p < parent->size; p++) {
-					if(parent->key[p] == key) {
-						parent->key[p] = newParentKey;
-						break;
-					}
-				}
-			}
-
-			// Done and stop
-			return;
-		}
-		// Case 2
-		// Test commit
-
-		// Case 3
-
-		// Load next
-		result = findNodeWithKey(key);
-		position = std::get<0>(result);
-		target = std::get<1>(result);
-	}
-
-}
-
-BPTreeNode* BPTree::findValidSibling(BPTreeNode* node) {
-	// Check left
-
-
-	// Check right
-
-	// Else
-	return nullptr;
-}

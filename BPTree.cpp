@@ -71,6 +71,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			BPTreeNode* node = tmp->ptr[index];
 			if (node == nullptr) {
 				node = new BPTreeNode(MAX);
+				tmp->ptr[index] = node;
 				node->key[0] = x;
 				node->adrs[0] = r;
 				node->size = 1;
@@ -117,6 +118,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			for (int j = cursor->size; j > i; j--) {
 				cursor->key[j] = cursor->key[j - 1];
 				cursor->adrs[j] = cursor->adrs[j - 1];
+				cursor->ptr[j] = cursor->ptr[j - 1];
 			}
 			cursor->key[i] = x;
 			cursor->adrs[i] = r;
@@ -177,6 +179,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			}
 			delete[] virtualNode;
 			delete[] tempAddresses;
+			delete[] virtualPtr;
 		}
 	}
 }
@@ -458,23 +461,23 @@ void BPTree::display(BPTreeNode* cursor) {
 			std::cout << "Leaf Node: ";
 		}
 		for (int i = 0; i < cursor->size; i++) {
-			std::cout << cursor->key[i] << " ";
+			std::cout << cursor->key[i];
 
 			// print duplicates
 			if (cursor->IS_LEAF && cursor->ptr[i] != nullptr) {
-				int countDups = 0;
-				BPTreeNode* tmp = cursor->ptr[i];
-				while (tmp != nullptr) {
-					countDups += tmp->size;
-					for (int i = 0; i < tmp->size; i++) {
-						std::cout << tmp->key[i] << " ";
+					int countDups = 0;
+					BPTreeNode* tmp = cursor->ptr[i];
+					while (tmp != nullptr) {
+						countDups += tmp->size;
+						//for (int i = 0; i < tmp->size; i++) {
+						//	std::cout << tmp->key[i] << " ";
+						//}
+						tmp = tmp->ptr[0];
 					}
-					tmp = tmp->ptr[0];
+					std::cout << "(" << countDups << ")";
 				}
-				std::cout << "(" << countDups << ")";
-			}
 			//std::cout << cursor->adrs[i].blockAddress << " ";
-
+			std::cout << " ";
 		}
 		std::cout << "\n";
 		if (cursor->IS_LEAF != true) {

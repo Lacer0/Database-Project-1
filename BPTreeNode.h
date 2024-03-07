@@ -10,7 +10,4 @@ class BPTreeNode {
 
 public:
 	BPTreeNode(int MAX);
-	bool IS_LEAF;
-	int* key, size;
-	BPTreeNode** ptr;
 };

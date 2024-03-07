@@ -17,6 +17,8 @@ public:
 	void search(int);
 	void insert(std::tuple<int, RecordAddress> recordMetaData);
 	void deleteKey(int x);
+	BPTreeNode* findKey(BPTreeNode* cursor, int key);
+	void deleteAllWithKeyValue(int key);
 	void display(BPTreeNode *);
 	BPTreeNode* getRoot();
 

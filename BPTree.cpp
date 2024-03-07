@@ -211,6 +211,41 @@ BPTreeNode* BPTree::findParent(BPTreeNode* cursor, BPTreeNode* child) {
 	return parent;
 }
 
+BPTreeNode* BPTree::findKey(BPTreeNode* cursor, int key) {
+	if (cursor != nullptr) {
+		while (cursor->IS_LEAF == false) {
+			for (int i = 0; i < cursor->size; i++) {
+				if (key < cursor->key[i]) {
+					cursor = cursor->ptr[i];
+					break;
+				}
+
+				if (i == cursor->size - 1) {
+					cursor = cursor->ptr[i + 1];
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < cursor->size; i++) {
+			if (cursor->key[i] == key) {
+				std::cout << "Found key " << key << std::endl;
+				return cursor;
+			}
+		}
+		std::cout << "Key not found" << std::endl;
+	}
+	return nullptr;
+}
+
+void BPTree::deleteAllWithKeyValue(int key) {
+	int deleteCount = 0;
+	while (findKey(root, key) != nullptr) {
+		deleteKey(key);
+		deleteCount++;
+	}
+	std::cout << "Delete count: " << deleteCount << std::endl;
+}
+
 void BPTree::deleteKey(int x) {
 	if (root == nullptr) {
 		std::cout << "Tree is empty\n";

@@ -138,6 +138,9 @@
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="RecordStructs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Project 1\data.tsv" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

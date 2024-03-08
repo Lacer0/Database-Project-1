@@ -151,8 +151,8 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			tempAddresses[i] = r;
 			virtualPtr[i] = nullptr;
 			newLeaf->IS_LEAF = true;
-			cursor->size = ceil((MAX + 1) / 2);
-			newLeaf->size = floor((MAX + 1) / 2);
+			cursor->size = ceil((MAX + 1) / 2.0);
+			newLeaf->size = floor((MAX + 1) / 2.0);
 			cursor->ptr[cursor->size] = newLeaf;
 			newLeaf->ptr[newLeaf->size] = cursor->ptr[MAX];
 			cursor->ptr[MAX] = nullptr;
@@ -225,8 +225,8 @@ void BPTree::insertInternal(int x, BPTreeNode* cursor, BPTreeNode* child) {
 		}
 		virtualPtr[i + 1] = child;
 		newInternal->IS_LEAF = false;
-		cursor->size = ceil(MAX / 2);
-		newInternal->size = floor(MAX / 2);
+		cursor->size = ceil(MAX / 2.0);
+		newInternal->size = floor(MAX / 2.0);
 		for (i = 0, j = cursor->size + 1; i < newInternal->size; i++, j++) {
 			newInternal->key[i] = virtualKey[j];
 		}
@@ -343,7 +343,7 @@ void BPTree::deleteKey(int x) {
 	cursor->size--;
 
 	// Steps 3 and 4, check for underflow and handle it:
-	if (cursor->size < floor((MAX + 1) / 2)) {
+	if (cursor->size < floor((MAX + 1) / 2.0)) {
 		handleUnderflow(cursor, parent);
 	}
 }
@@ -369,11 +369,11 @@ void BPTree::handleUnderflow(BPTreeNode* cursor, BPTreeNode* parent) {
 	}
 
 	// Try redistributing first
-	if (leftSibling != nullptr && leftSibling->size > floor((MAX + 1) / 2)) {
+	if (leftSibling != nullptr && leftSibling->size > floor((MAX + 1) / 2.0)) {
 		// Redistribute with left sibling
 		redistribute(cursor, leftSibling, parent, siblingIndex, true);
 	}
-	else if (rightSibling != nullptr && rightSibling->size > floor((MAX + 1) / 2)) {
+	else if (rightSibling != nullptr && rightSibling->size > floor((MAX + 1) / 2.0)) {
 		// Redistribute with right sibling
 		redistribute(cursor, rightSibling, parent, siblingIndex + 1, false);
 	}
@@ -444,7 +444,7 @@ void BPTree::mergeNodes(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* par
 		delete cursor;
 
 		// Check underflow in parent
-		if (parent != root && parent->size < floor((MAX + 1) / 2)) {
+		if (parent != root && parent->size < floor((MAX + 1) / 2.0)) {
 			BPTreeNode* grandParent = findParent(root, parent);
 			handleUnderflow(parent, grandParent);
 		}

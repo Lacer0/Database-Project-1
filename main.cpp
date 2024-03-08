@@ -48,7 +48,7 @@ int main()
 
             dataset.push(std::tuple<int, RecordAddress>(numVotes, recordAddress));
 
-            if (stopAt == 100) {
+            if (stopAt == 1000) {
                 break;
             }
             stopAt++;

@@ -122,6 +122,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			}
 			cursor->key[i] = x;
 			cursor->adrs[i] = r;
+			cursor->ptr[i] = nullptr;
 			cursor->size++;
 			cursor->ptr[cursor->size] = cursor->ptr[cursor->size - 1];
 			cursor->ptr[cursor->size - 1] = nullptr;
@@ -148,6 +149,7 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			}
 			virtualNode[i] = x;
 			tempAddresses[i] = r;
+			virtualPtr[i] = nullptr;
 			newLeaf->IS_LEAF = true;
 			cursor->size = ceil((MAX + 1) / 2);
 			newLeaf->size = floor((MAX + 1) / 2);

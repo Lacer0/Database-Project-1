@@ -48,7 +48,7 @@ int main()
 
             dataset.push(std::tuple<int, RecordAddress>(numVotes, recordAddress));
 
-            if (stopAt == 2000) {
+            if (stopAt == 5000) {
                 break;
             }
             stopAt++;
@@ -75,7 +75,21 @@ int main()
         dataset.pop();
     }
 
-    //tree.deleteAllWithKeyValue(16);
+    //tree.deleteAllWithKeyValue(6);
+    tree.deleteKey(6);
+    tree.deleteKey(9);
+    tree.deleteKey(29);
+    tree.deleteKey(30);
+    tree.deleteKey(31);
+    tree.deleteKey(32);
+    tree.deleteKey(33);
+    tree.deleteKey(34);
+    tree.deleteKey(35);
+    tree.deleteKey(36);
+    tree.deleteKey(37);
+    tree.deleteKey(38);
+    tree.deleteKey(39);
+    
     tree.display(tree.getRoot());
 
 }

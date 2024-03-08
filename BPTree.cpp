@@ -343,7 +343,7 @@ void BPTree::deleteKey(int x) {
 	cursor->size--;
 
 	// Steps 3 and 4, check for underflow and handle it:
-	if (cursor->size < floor((MAX + 1) / 2.0)) {
+	if (cursor->size < ceil((MAX / 2.0) - 1)) {
 		handleUnderflow(cursor, parent);
 	}
 }
@@ -369,13 +369,13 @@ void BPTree::handleUnderflow(BPTreeNode* cursor, BPTreeNode* parent) {
 	}
 
 	// Try redistributing first
-	if (leftSibling != nullptr && leftSibling->size > floor((MAX + 1) / 2.0)) {
+	if (leftSibling != nullptr && leftSibling->size > ceil((MAX / 2.0) - 1)) {
 		// Redistribute with left sibling
-		redistribute(cursor, leftSibling, parent, siblingIndex, true);
+		redistribute(cursor, leftSibling, parent, siblingIndex - 1, true);
 	}
-	else if (rightSibling != nullptr && rightSibling->size > floor((MAX + 1) / 2.0)) {
+	else if (rightSibling != nullptr && rightSibling->size > ceil((MAX / 2.0) - 1)) {
 		// Redistribute with right sibling
-		redistribute(cursor, rightSibling, parent, siblingIndex + 1, false);
+		redistribute(cursor, rightSibling, parent, siblingIndex, false);
 	}
 	else {
 		// Merge with sibling
@@ -444,7 +444,7 @@ void BPTree::mergeNodes(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* par
 		delete cursor;
 
 		// Check underflow in parent
-		if (parent != root && parent->size < floor((MAX + 1) / 2.0)) {
+		if (parent != root && parent->size < ceil((MAX / 2.0) - 1)) {
 			BPTreeNode* grandParent = findParent(root, parent);
 			handleUnderflow(parent, grandParent);
 		}

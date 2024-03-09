@@ -59,7 +59,7 @@ RecordAddress MemoryPool::writeRecord(Record record) {
 Record MemoryPool::readRecord(RecordAddress address) {
 	// Source for thread sleeping:
 	// https://stackoverflow.com/questions/4184468/sleep-for-milliseconds 
-	// std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 	// Directly calculate the address of the record within the block
 	Record* record = reinterpret_cast<Record*>(reinterpret_cast<char*>(address.blockAddress) + address.offset);

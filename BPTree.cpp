@@ -588,7 +588,7 @@ void BPTree::fetchRecordsByRange(BPTreeNode* node, int min, int max, int& numInd
 			}
 			else if (node->key[i] > max) {
 				// stop early
-				stop = true;
+				// stop = true;
 				break;
 			}
 		}

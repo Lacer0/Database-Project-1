@@ -23,7 +23,11 @@ public:
 	int getDiskSize();
 	int getBlockSize();
 
+	int getDataBlockAccessCount();
+	void resetDataBlockAccessCount();
+
 private:
+	std::vector<uintptr_t> accessedDataBlock;
 	unsigned int totalMemory;
 	unsigned int blockSize;
 	std::queue<uintptr_t> freeBlocks;

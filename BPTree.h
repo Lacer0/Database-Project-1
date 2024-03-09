@@ -2,6 +2,7 @@
 #include "RecordStructs.h"
 #include "BPTreeNode.h"
 #include <tuple>
+#include "MemoryPool.h"
 
 class BPTree {
 	BPTreeNode* root;
@@ -24,6 +25,7 @@ public:
 	int countNodes() const;
 	int treeHeight() const;
 	void printRootKeys() const;
+	void fetchRecordsByRange(BPTreeNode* node, int min, int max, int& numIndexAccessed, MemoryPool& memPool, std::vector<Record>& records);
 
 private:
 	int countNodesHelper(BPTreeNode* node) const;

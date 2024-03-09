@@ -115,6 +115,9 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 				i++;
 			}
 
+			// Save next leafnode pointer
+			BPTreeNode* point = cursor->ptr[cursor->size];
+
 			for (int j = cursor->size; j > i; j--) {
 				cursor->key[j] = cursor->key[j - 1];
 				cursor->adrs[j] = cursor->adrs[j - 1];
@@ -124,8 +127,11 @@ void BPTree::insert(std::tuple<int, RecordAddress> record) {
 			cursor->adrs[i] = r;
 			cursor->ptr[i] = nullptr;
 			cursor->size++;
-			cursor->ptr[cursor->size] = cursor->ptr[cursor->size - 1];
-			cursor->ptr[cursor->size - 1] = nullptr;
+
+			// Restore next leafnode pointer
+			cursor->ptr[cursor->size] = point;
+			/*cursor->ptr[cursor->size] = cursor->ptr[cursor->size - 1];
+			cursor->ptr[cursor->size - 1] = nullptr;*/
 		}
 		// Else restructure
 		else {
@@ -539,4 +545,54 @@ void BPTree::printRootKeys() const {
 		std::cout << root->key[i] << " ";
 	}
 	std::cout << std::endl;
+}
+
+
+void BPTree::fetchRecordsByRange(BPTreeNode* node, int min, int max, int& numIndexAccessed, MemoryPool& memPool, std::vector<Record>& records) {
+	int numDataAccessed = 0;
+	if (node == nullptr) {
+		return;
+	}
+
+	while (node->IS_LEAF == false) {
+		for (int i = 0; i < node->size; i++) {
+			numIndexAccessed++;
+			if (min < node->key[i]) {
+				node = node->ptr[i];
+				break;
+			}
+			if (i == node->size - 1) {
+				node = node->ptr[i + 1];
+				break;
+			}
+		}
+	}
+	while (node != nullptr) {
+		for (int i = 0; i < node->size; i++) {
+			if (node->key[i] >= min && node->key[i] <= max) {
+				records.push_back(memPool.readRecord(node->adrs[i]));
+				numDataAccessed++;
+
+				// Check for duplicates
+				BPTreeNode* temp = node->ptr[i];
+				while (temp != nullptr) {
+					numIndexAccessed++;
+					for (int dup = 0; dup < temp->size; dup++) {
+						records.push_back(memPool.readRecord(temp->adrs[dup]));
+						numDataAccessed++;
+					}
+					// Go down the chain
+					temp = temp->ptr[0];
+				}
+			}
+		}
+		// Go next leaf node
+		if (node->ptr[node->size] != nullptr) {
+			numIndexAccessed++;
+			node = node->ptr[node->size];
+		}
+		else {
+			break;
+		}
+	}
 }

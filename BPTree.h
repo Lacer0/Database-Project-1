@@ -21,5 +21,10 @@ public:
 	void deleteAllWithKeyValue(int key);
 	void display(BPTreeNode *);
 	BPTreeNode* getRoot();
+	int countNodes() const;
+	int treeHeight() const;
+	void printRootKeys() const;
 
+private:
+	int countNodesHelper(BPTreeNode* node) const;
 };

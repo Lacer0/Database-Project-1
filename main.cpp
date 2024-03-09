@@ -76,20 +76,28 @@ int main()
     }
 
     //tree.deleteAllWithKeyValue(6);
-    tree.deleteKey(6);
-    tree.deleteKey(9);
-    tree.deleteKey(29);
-    tree.deleteKey(30);
-    tree.deleteKey(31);
-    tree.deleteKey(32);
-    tree.deleteKey(33);
-    tree.deleteKey(34);
-    tree.deleteKey(35);
-    tree.deleteKey(36);
-    tree.deleteKey(37);
-    tree.deleteKey(38);
-    tree.deleteKey(39);
+    //tree.deleteKey(6);
+    //tree.deleteKey(9);
+    //tree.deleteKey(29);
+    //tree.deleteKey(30);
+    //tree.deleteKey(31);
+    //tree.deleteKey(32);
+    //tree.deleteKey(33);
+    //tree.deleteKey(34);
+    //tree.deleteKey(35);
+    //tree.deleteKey(36);
+    //tree.deleteKey(37);
+    //tree.deleteKey(38);
+    //tree.deleteKey(39);
     
-    tree.display(tree.getRoot());
+    std::cout << "================== Experiment 2 ==================" << std::endl;
+    // To calculate and print the statistics
+    std::cout << "Parameter n of the B+ tree: " << n << std::endl;
+    std::cout << "Number of nodes of the B+ tree: " << tree.countNodes() << std::endl; // Implement countNodes in BTree
+    std::cout << "Number of levels of the B+ tree: " << tree.treeHeight() << std::endl; // Implement treeHeight in BTree
+    std::cout << "Content of the root node (only the keys): ";
+    tree.printRootKeys(); // Implement printRootKeys in BTree
 
+    tree.deleteAllWithKeyValue(16);
+    tree.display(tree.getRoot());
 }

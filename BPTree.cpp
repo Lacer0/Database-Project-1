@@ -501,4 +501,42 @@ BPTreeNode* BPTree::getRoot() {
 	return root;
 }
 
+int BPTree::countNodes() const {
+	return countNodesHelper(root);
+}
 
+int BPTree::countNodesHelper(BPTreeNode* node) const {
+	if (node == nullptr) return 0; // Base case
+
+	int count = 1; // Count the current node
+	if (!node->IS_LEAF) {
+		// Iterate through all child pointers
+		for (int i = 0; i <= node->size; ++i) {
+			count += countNodesHelper(node->ptr[i]);
+		}
+	}
+	return count;
+}
+
+int BPTree::treeHeight() const {
+	int height = 0;
+	BPTreeNode* currentNode = root;
+	while (currentNode != nullptr && !currentNode->IS_LEAF) {
+		currentNode = currentNode->ptr[0]; // Always follow the first child pointer
+		height++;
+	}
+	return height + 1; // Add 1 to count the leaf level
+}
+
+void BPTree::printRootKeys() const {
+	if (root == nullptr) {
+		std::cout << "The tree is empty." << std::endl;
+		return;
+	}
+
+	std::cout << "Keys in the root node: ";
+	for (int i = 0; i < root->size; ++i) {
+		std::cout << root->key[i] << " ";
+	}
+	std::cout << std::endl;
+}

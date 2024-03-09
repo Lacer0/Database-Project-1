@@ -54,12 +54,10 @@ RecordAddress MemoryPool::writeRecord(Record record) {
 }
 
 Record MemoryPool::readRecord(RecordAddress address) {
-	// Fetch block
-	char* block;
-	memcpy(&block, (char*)address.blockAddress, blockSize);
+	// Directly calculate the address of the record within the block
+	Record* record = reinterpret_cast<Record*>(reinterpret_cast<char*>(address.blockAddress) + address.offset);
 
-	// Get record
-	Record* record = (Record*)(block + address.offset);
+	// Return the record found at that location
 	return *record;
 }
 

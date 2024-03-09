@@ -339,6 +339,7 @@ void BPTree::deleteKey(int x) {
 	for (; i < cursor->size - 1; i++) {
 		cursor->key[i] = cursor->key[i + 1];
 		cursor->adrs[i] = cursor->adrs[i + 1];
+		cursor->ptr[i] = cursor->ptr[i + 1];
 	}
 	cursor->size--;
 
@@ -395,9 +396,11 @@ void BPTree::redistribute(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* p
 		for (int i = cursor->size; i > 0; i--) {
 			cursor->key[i] = cursor->key[i - 1];
 			cursor->adrs[i] = cursor->adrs[i - 1];
+			cursor->ptr[i] = cursor->ptr[i - 1];
 		}
 		cursor->key[0] = sibling->key[sibling->size - 1];
 		cursor->adrs[0] = sibling->adrs[sibling->size - 1];
+		cursor->ptr[0] = sibling->ptr[sibling->size - 1];
 		cursor->size++;
 
 		sibling->size--;
@@ -409,10 +412,12 @@ void BPTree::redistribute(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* p
 		// Move one key from the right sibling to the underflow node
 		cursor->key[cursor->size] = sibling->key[0];
 		cursor->adrs[cursor->size] = sibling->adrs[0];
+		cursor->ptr[cursor->size] = sibling->ptr[0];
 		cursor->size++;
 		for (int i = 0; i < sibling->size - 1; i++) {
 			sibling->key[i] = sibling->key[i + 1];
 			sibling->adrs[i] = sibling->adrs[i + 1];
+			sibling->ptr[i] = sibling->ptr[i + 1];
 		}
 		sibling->size--;
 
@@ -427,6 +432,7 @@ void BPTree::mergeNodes(BPTreeNode* cursor, BPTreeNode* sibling, BPTreeNode* par
 		for (int i = 0; i < cursor->size; i++) {
 			sibling->key[sibling->size + i] = cursor->key[i];
 			sibling->adrs[sibling->size + i] = cursor->adrs[i];
+			sibling->ptr[sibling->size + i] = cursor->ptr[i];
 		}
 		sibling->size += cursor->size;
 		sibling->ptr[sibling->size] = cursor->ptr[cursor->size];

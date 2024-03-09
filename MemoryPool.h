@@ -15,6 +15,7 @@ public:
 	// Record
 	RecordAddress writeRecord(Record record);
 	Record readRecord(RecordAddress recordAddress);
+	void deleteRecord(RecordAddress address);
 	//bool writeToBlock(unsigned address, char* object);
 
 	// Getters
@@ -30,7 +31,7 @@ private:
 	std::vector<uintptr_t> accessedDataBlock;
 	unsigned int totalMemory;
 	unsigned int blockSize;
-	std::queue<uintptr_t> freeBlocks;
+	std::vector<uintptr_t> freeBlocks;
 	char* memory;
-	std::queue<RecordAddress> freeRecords; // stores block, offset
+	std::vector<RecordAddress> freeRecords; // stores block, offset
 };

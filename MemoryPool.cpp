@@ -15,22 +15,22 @@ MemoryPool::MemoryPool(unsigned int diskCapacity, int blockSize) :totalMemory(di
 	uintptr_t baseAddress = reinterpret_cast<uintptr_t>(memory);
 	// Divide disk capacity into blocks!
 	while (tmp < diskCapacity) {
-		freeBlocks.push(baseAddress + tmp);
+		freeBlocks.push_back(baseAddress + tmp);
 		tmp += blockSize;
 	}
 }
 
 uintptr_t MemoryPool::allocateBlock() {
 	if (!freeBlocks.empty()) {
-		uintptr_t tmp = freeBlocks.front();
-		freeBlocks.pop();
+		uintptr_t tmp = freeBlocks.back();
+		freeBlocks.pop_back();
 		return tmp;
 	}
 	std::cout << "ERROR! NO MORE FREE CHUNKS! LIKELY TO FAIL!" << std::endl;
 }
 
 void MemoryPool::deallocateBlock(uintptr_t address) {
-	freeBlocks.push(address);
+	freeBlocks.push_back(address);
 }
 
 RecordAddress MemoryPool::writeRecord(Record record) {
@@ -39,14 +39,14 @@ RecordAddress MemoryPool::writeRecord(Record record) {
 		uintptr_t blockAddress = allocateBlock();
 		uint32_t offset = 0;
 		while (offset < blockSize) {
-			freeRecords.push(RecordAddress{ blockAddress, offset });
+			freeRecords.push_back(RecordAddress{ blockAddress, offset });
 			offset += sizeof(Record);
 		}
 	}
 
 	// Get free memory location
-	RecordAddress target = freeRecords.front();
-	freeRecords.pop();
+	RecordAddress target = freeRecords.back();
+	freeRecords.pop_back();
 
 	// Write to memory location
 	void* memLoc = (void*)(target.blockAddress + target.offset);
@@ -69,6 +69,10 @@ Record MemoryPool::readRecord(RecordAddress address) {
 	return *record;
 }
 
+void MemoryPool::deleteRecord(RecordAddress address) {
+	freeRecords.push_back(address);
+}
+
 // Getters
 int MemoryPool::getNumTotalBlocks() {
 	return std::floor(totalMemory / blockSize);
@@ -87,9 +91,9 @@ int MemoryPool::getBlockSize() {
 }
 
 int MemoryPool::getDataBlockAccessCount() {
-	std::vector<uintptr_t>::iterator it;
+	/*std::vector<uintptr_t>::iterator it;
 	it = std::unique(accessedDataBlock.begin(), accessedDataBlock.end());
-	accessedDataBlock.resize(std::distance(accessedDataBlock.begin(), it));
+	accessedDataBlock.resize(std::distance(accessedDataBlock.begin(), it));*/
 	return accessedDataBlock.size();
 }
 void MemoryPool::resetDataBlockAccessCount() {

@@ -567,6 +567,7 @@ void BPTree::fetchRecordsByRange(BPTreeNode* node, int min, int max, int& numInd
 			}
 		}
 	}
+	bool stop = false;
 	while (node != nullptr) {
 		for (int i = 0; i < node->size; i++) {
 			if (node->key[i] >= min && node->key[i] <= max) {
@@ -585,6 +586,14 @@ void BPTree::fetchRecordsByRange(BPTreeNode* node, int min, int max, int& numInd
 					temp = temp->ptr[0];
 				}
 			}
+			else if (node->key[i] > max) {
+				// stop early
+				stop = true;
+				break;
+			}
+		}
+		if (stop) {
+			break;
 		}
 		// Go next leaf node
 		if (node->ptr[node->size] != nullptr) {

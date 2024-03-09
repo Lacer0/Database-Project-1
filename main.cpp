@@ -64,7 +64,7 @@ int main()
 
     // <Block header> <pointer><key><pointer><key><pointer>
     // Need to take care of last pointer, so remove it from available blocksize
-    int n = std::floor((blockSize - sizeof(BPTreeNode) - sizeof(BPTreeNode*))/sizeof(BPTreeNode*) + sizeof(int));
+    int n = std::floor((blockSize - sizeof(BPTreeNode) - sizeof(BPTreeNode*))/(sizeof(BPTreeNode*) + sizeof(int) + sizeof(RecordAddress)));
 
     std::cout << "Size of n: " << n << "\n";
 

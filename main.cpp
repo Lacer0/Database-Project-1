@@ -74,23 +74,6 @@ int main()
     for(auto data : dataset) {
         tree.insert(data);
     }
-
-    //tree.deleteAllWithKeyValue(6);
-    //tree.deleteKey(6);
-    //tree.deleteKey(9);
-    //tree.deleteKey(29);
-    //tree.deleteKey(30);
-    //tree.deleteKey(31);
-    //tree.deleteKey(32);
-    //tree.deleteKey(33);
-    //tree.deleteKey(34);
-    //tree.deleteKey(35);
-    //tree.deleteKey(36);
-    //tree.deleteKey(37);
-    //tree.deleteKey(38);
-    //tree.deleteKey(39);
-    //tree.deleteAllWithKeyValue(16);
-    //tree.display(tree.getRoot());
     
     std::cout << "================== Experiment 2 ==================" << std::endl;
     // To calculate and print the statistics
@@ -211,4 +194,49 @@ int main()
 
 
     std::cout << "================== Experiment 5 ==================" << std::endl;
+    // Delete records with numVotes equal to 1000.
+    numVotes = 1000;
+    numOfIndexNodesAccessed = 0;
+    numOfDataBlocksAccessed = 0;
+    records.clear();
+    memPool.resetDataBlockAccessCount();
+
+    start = Time::now();
+    // Start
+    tree.deleteKey(numVotes);
+    // Stop
+    stop = Time::now();
+    treeDuration = std::chrono::duration_cast<ms>(stop - start);
+    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount();
+    int numBlocksDeleted = 0;
+
+    std::cout << "Number of nodes of the B+ tree: " << tree.countNodes() << std::endl;
+    std::cout << "Number of levels of the B+ tree: " << tree.treeHeight() << std::endl;
+    std::cout << "Content of the root node (only the keys): ";
+    tree.printRootKeys();
+
+    std::cout << "Running time of deletion process: " << treeDuration.count() << " ms" << std::endl;
+
+    // Brute force method
+    memPool.resetDataBlockAccessCount();
+    start = Time::now();
+    for (int i = 0; i < dataset.size(); i++) {
+        RecordAddress address = std::get<1>(dataset.at(i));
+        Record record = memPool.readRecord(address);
+        int key = record.numVotes;
+        if (key == numVotes) {
+            // Delete record
+            memPool.deleteRecord(address);
+            dataset.erase(dataset.begin() + i);
+            numBlocksDeleted++;
+        }
+    }
+
+    stop = Time::now();
+    bruteDuration = std::chrono::duration_cast<ms>(stop - start);
+    bruteAccessCount = memPool.getDataBlockAccessCount();
+
+    std::cout << "Number of data blocks accessed by brute-force deletion: " << bruteAccessCount << 
+        ", and number of blocks deleted are: " << numBlocksDeleted << std::endl;
+    std::cout << "Running time of brute-force deletion: " << bruteDuration.count() << " ms" << std::endl;
 }

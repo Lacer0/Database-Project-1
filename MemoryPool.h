@@ -24,7 +24,7 @@ public:
 	int getDiskSize();
 	int getBlockSize();
 
-	int getDataBlockAccessCount();
+	int getDataBlockAccessCount(bool onlyUniqueAccess);
 	void resetDataBlockAccessCount();
 
 private:

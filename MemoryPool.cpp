@@ -90,10 +90,13 @@ int MemoryPool::getBlockSize() {
 	return blockSize;
 }
 
-int MemoryPool::getDataBlockAccessCount() {
-	/*std::vector<uintptr_t>::iterator it;
-	it = std::unique(accessedDataBlock.begin(), accessedDataBlock.end());
-	accessedDataBlock.resize(std::distance(accessedDataBlock.begin(), it));*/
+int MemoryPool::getDataBlockAccessCount(bool onlyUniqueAccess) {
+	if (onlyUniqueAccess) {
+		std::vector<uintptr_t>::iterator it;
+		it = std::unique(accessedDataBlock.begin(), accessedDataBlock.end());
+		accessedDataBlock.resize(std::distance(accessedDataBlock.begin(), it));
+	}
+	
 	return accessedDataBlock.size();
 }
 void MemoryPool::resetDataBlockAccessCount() {

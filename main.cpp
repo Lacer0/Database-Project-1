@@ -114,7 +114,7 @@ int main()
     // Stop
     stop = Time::now();
     treeDuration = std::chrono::duration_cast<ms>(stop - start);
-    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount();
+    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount(false);
 
     memPool.resetDataBlockAccessCount();
     start = Time::now();
@@ -128,7 +128,7 @@ int main()
     }
     stop = Time::now();
     bruteDuration = std::chrono::duration_cast<ms>(stop - start);
-    bruteAccessCount = memPool.getDataBlockAccessCount();
+    bruteAccessCount = memPool.getDataBlockAccessCount(true);
 
     // To calculate and print the statistics
     total = 0.0;
@@ -162,7 +162,7 @@ int main()
     // Stop
     stop = Time::now();
     treeDuration = std::chrono::duration_cast<ms>(stop - start);
-    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount();
+    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount(false);
 
     memPool.resetDataBlockAccessCount();
     start = Time::now();
@@ -176,7 +176,7 @@ int main()
     }
     stop = Time::now();
     bruteDuration = std::chrono::duration_cast<ms>(stop - start);
-    bruteAccessCount = memPool.getDataBlockAccessCount();
+    bruteAccessCount = memPool.getDataBlockAccessCount(true);
 
     // To calculate and print the statistics
     total = 0.0;
@@ -207,7 +207,7 @@ int main()
     // Stop
     stop = Time::now();
     treeDuration = std::chrono::duration_cast<ms>(stop - start);
-    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount();
+    numOfDataBlocksAccessed = memPool.getDataBlockAccessCount(false);
     int numBlocksDeleted = 0;
 
     std::cout << "Number of nodes of the B+ tree: " << tree.countNodes() << std::endl;
@@ -234,7 +234,7 @@ int main()
 
     stop = Time::now();
     bruteDuration = std::chrono::duration_cast<ms>(stop - start);
-    bruteAccessCount = memPool.getDataBlockAccessCount();
+    bruteAccessCount = memPool.getDataBlockAccessCount(true);
 
     std::cout << "Number of data blocks accessed by brute-force deletion: " << bruteAccessCount << 
         ", and number of blocks deleted are: " << numBlocksDeleted << std::endl;
